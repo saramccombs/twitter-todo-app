@@ -1,44 +1,37 @@
 // Setup server
 const express = require('express');
-const bodyParser = require('body-parser');
+const path = require('path');
 
 const app = express();
-app.use(bodyParser.urlencoded({ extended: true }));
+
+// parse application/x-www-form-urlencoded
+app.use(express.urlencoded({ extended: true }));
+
+// parse application/json
+app.use(express.json());
+
+// This is where my static assets are!
+app.use(express.static(`${__dirname}/public`));
+
+//  Setup EJS
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+
 // ------------------ Don't change above this line ------------------
 
 // First route. Go to http://localhost:5000 and you should see Hello World in the
 // browser. Remember the project has no UI, so this is just for you to experience
 // that this all works.
-app.get('/', (req, res) => res.send('Hello World!!'));
 
-// GET ALL
-app.get('/api', (req, res) => {
-  res.send('Hello All!');
-});
+const data = {};
 
-// GET ONE.. but just pulling name from params
-app.get('/api/:name', (req, res) => {
-  res.send(`Hello ${req.params.name}`);
-});
+const mainRoutes = require('./routes/index');
+const apiRoutes = require('./routes/api');
+
+app.use('/', mainRoutes);
+app.use('/api', apiRoutes);
 
 // CREATE
-app.post('/api', (req, res) => {
-  const { name } = req.query;
-  // Use cookies for ephemeral data persistane?
-  console.log(name);
-  res.redirect(`/api/${name}`);
-});
-
-// UPDATE
-app.put('/api/:name', (req, res) => {
-  const newName = req.query.name;
-  res.redirect(`/api/${newName}`);
-});
-
-// DELETE
-app.delete('/api/:name', (req, res) => {
-  // How to detele without any data persistance? Use cookies and clear the requested cookie?
-});
 
 // -------------------- Don't change below this line ------------------
 // Setup where the server listens e.g. which port. Necessary for the browser for example.
